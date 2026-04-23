@@ -21,11 +21,13 @@ import {
 import { EllipsisVertical } from "lucide-react";
 import { updateStatusOrderItem } from "../../actions";
 import { INITIAL_STATE_ACTION } from "@/constants/general-constant";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function DetailOrder({ id }: { id: string }) {
   const supabase = createClient();
   const { currentPage, currentLimit, handleChangePage, handleChangeLimit } =
     useDataTable();
+  const profile = useAuthStore((state) => state.profile);
 
   const { data: order } = useQuery({
     queryKey: ["order", id],
@@ -79,8 +81,8 @@ export default function DetailOrder({ id }: { id: string }) {
     status: string;
   }) => {
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-      formData.append(key, value);
+    Object.entries(data).forEach(([Key, value]) => {
+      formData.append(Key, value);
     });
 
     startTransition(() => {
@@ -180,9 +182,11 @@ export default function DetailOrder({ id }: { id: string }) {
     <div className="w-full space-y-4">
       <div className="flex items-center justify-between gap-4 w-full">
         <h1 className="text-2xl font-bold">Detail Order</h1>
-        <Link href={`/order/${id}/add`}>
-          <Button>Add Order Item</Button>
-        </Link>
+        {profile.role !== "kitchen" && (
+          <Link href={`/order/${id}/add`}>
+            <Button>Add Order Item</Button>
+          </Link>
+        )}
       </div>
       <div className="flex flex-col lg:flex-row gap-4 w-full">
         <div className="lg:w-2/3">
